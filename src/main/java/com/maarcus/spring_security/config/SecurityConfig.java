@@ -15,6 +15,7 @@ public class SecurityConfig {
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests((requests) -> requests.requestMatchers("/contact").permitAll());
+    http.authorizeHttpRequests((requests) -> requests.requestMatchers("/hi").denyAll());
     http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
     // http.formLogin(withDefaults());
     http.sessionManagement(
