@@ -15,4 +15,9 @@ public class TestController {
   public String hi() {
     return "Hi";
   }
+
+  @GetMapping("/contact")
+  public String sayContact() {
+    return "Contact";
+  }
 }
