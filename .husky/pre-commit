@@ -1,1 +1,1 @@
-./mvnw spotless:apply && git add . && ./mvnw clean test
+mvn spotless:apply && git add . && mvn clean test

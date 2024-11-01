@@ -1,1 +1,1 @@
-./mvnw spotless:apply && ./mvnw clean test && ./mvnw clean package
+mvn spotless:apply && mvn clean test && mvn clean package
