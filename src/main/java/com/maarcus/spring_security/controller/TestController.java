@@ -13,7 +13,6 @@ public class TestController {
 
   @GetMapping("/hi")
   public String hi() {
-      return "Hi";
+    return "Hi";
   }
-  
 }
