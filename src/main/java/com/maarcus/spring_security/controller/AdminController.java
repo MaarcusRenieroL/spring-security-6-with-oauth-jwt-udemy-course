@@ -31,7 +31,6 @@ public class AdminController {
     return ResponseEntity.ok().body("User role updated");
   }
 
-  @PreAuthorize("ROLE_ADMIN")
   @GetMapping("/user/{userId}")
   public ResponseEntity<User> getUserById(@PathVariable Long userId) {
     return ResponseEntity.ok()

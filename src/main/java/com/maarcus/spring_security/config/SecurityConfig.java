@@ -28,6 +28,8 @@ public class SecurityConfig {
     http.authorizeHttpRequests(
         (requests) ->
             requests
+                .requestMatchers("/api/admin/**")
+                .hasAnyRole("ADMIN")
                 .requestMatchers("/contact")
                 .permitAll()
                 .requestMatchers("/hi")
