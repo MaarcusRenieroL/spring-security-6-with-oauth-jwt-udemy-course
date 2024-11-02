@@ -5,7 +5,9 @@ import com.maarcus.spring_security.service.UserService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
   @Autowired private UserService userService;
 
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   @GetMapping("/get-all-users")
   public ResponseEntity<List<User>> getAllUsers() {
     return ResponseEntity.ok().body(userService.getAllUsers());
@@ -28,8 +31,9 @@ public class AdminController {
     return ResponseEntity.ok().body("User role updated");
   }
 
-  @GetMapping("/user/{id}")
-  public ResponseEntity<User> getUserById(@RequestParam Long userId) {
+  @PreAuthorize("ROLE_ADMIN")
+  @GetMapping("/user/{userId}")
+  public ResponseEntity<User> getUserById(@PathVariable Long userId) {
     return ResponseEntity.ok()
         .body(
             userService

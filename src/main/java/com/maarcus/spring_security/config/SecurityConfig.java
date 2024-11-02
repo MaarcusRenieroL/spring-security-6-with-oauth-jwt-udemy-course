@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
   @Bean
@@ -45,12 +47,12 @@ public class SecurityConfig {
     return args -> {
       Role userRole =
           roleRepository
-              .findByRoleName(AppRole.USER)
-              .orElseGet(() -> roleRepository.save(new Role(AppRole.USER)));
+              .findByRoleName(AppRole.ROLE_USER)
+              .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_USER)));
       Role adminRole =
           roleRepository
-              .findByRoleName(AppRole.ADMIN)
-              .orElseGet(() -> roleRepository.save(new Role(AppRole.ADMIN)));
+              .findByRoleName(AppRole.ROLE_ADMIN)
+              .orElseGet(() -> roleRepository.save(new Role(AppRole.ROLE_ADMIN)));
 
       if (userRepository.findByUserName("user1").isEmpty()) {
         User user1 = new User("user1", "{noop}password1", "user1@example.com");

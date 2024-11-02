@@ -1,6 +1,6 @@
 package com.maarcus.spring_security.model;
 
 public enum AppRole {
-  USER,
-  ADMIN
+  ROLE_USER,
+  ROLE_ADMIN
 }
