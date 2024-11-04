@@ -35,7 +35,6 @@ public class User {
   private String userName;
 
   @NotBlank
-  @Size(max = 50)
   @Column(name = "email")
   private String email;
 
