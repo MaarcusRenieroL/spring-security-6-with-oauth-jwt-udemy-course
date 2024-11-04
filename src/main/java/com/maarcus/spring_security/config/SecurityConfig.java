@@ -2,14 +2,17 @@ package com.maarcus.spring_security.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import com.maarcus.spring_security.filter.AuthTokenFilter;
 import com.maarcus.spring_security.filter.CustomLoggingFilter;
 import com.maarcus.spring_security.filter.RequestValidationFilter;
+import com.maarcus.spring_security.jwt.AuthEntryPoint;
 import com.maarcus.spring_security.model.AppRole;
 import com.maarcus.spring_security.model.Role;
 import com.maarcus.spring_security.model.User;
 import com.maarcus.spring_security.repository.RoleRepository;
 import com.maarcus.spring_security.repository.UserRepository;
 import java.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +21,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,6 +31,13 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
+
+  @Autowired private AuthEntryPoint unauthorizedHandler;
+
+  @Bean
+  AuthTokenFilter authenticationTokenFilter() {
+    return new AuthTokenFilter();
+  }
 
   @Bean
   AuthenticationManager authenticationManager(
@@ -49,16 +58,23 @@ public class SecurityConfig {
                 .denyAll()
                 .anyRequest()
                 .authenticated());
-    // http.formLogin(withDefaults());
+
     http.csrf(
         csrf ->
             csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .ignoringRequestMatchers("/api/auth"));
+
+    http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
-    http.sessionManagement(
-        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
+
+    // http.sessionManagement(
+    //     session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
     http.httpBasic(withDefaults());
+
     return http.build();
   }
 

@@ -64,7 +64,7 @@ public class AuthController {
             .map(item -> item.getAuthority())
             .collect(Collectors.toList());
 
-    LoginResponse response = new LoginResponse(userDetails.getUsername(), jwtToken, roles);
+    LoginResponse response = new LoginResponse(jwtToken, userDetails.getUsername(), roles);
     return ResponseEntity.ok(response);
   }
 }
