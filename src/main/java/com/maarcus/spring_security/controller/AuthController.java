@@ -14,4 +14,9 @@ public class AuthController {
   public CsrfToken getCsrfToken(HttpServletRequest request) {
     return (CsrfToken) request.getAttribute(CsrfToken.class.getName());
   }
+
+  @GetMapping
+  public String signIn() {
+    return "Authenticated Successfully";
+  }
 }

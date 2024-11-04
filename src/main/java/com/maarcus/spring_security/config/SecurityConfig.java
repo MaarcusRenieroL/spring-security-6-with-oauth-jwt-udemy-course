@@ -42,7 +42,10 @@ public class SecurityConfig {
                 .anyRequest()
                 .authenticated());
     // http.formLogin(withDefaults());
-    http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()));
+    http.csrf(
+        csrf ->
+            csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                .ignoringRequestMatchers("/api/auth"));
     http.addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
     http.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
     http.sessionManagement(
