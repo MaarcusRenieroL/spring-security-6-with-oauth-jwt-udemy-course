@@ -3,6 +3,7 @@ package com.maarcus.spring_security.config;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.maarcus.spring_security.filter.CustomLoggingFilter;
+import com.maarcus.spring_security.filter.RequestValidationFilter;
 import com.maarcus.spring_security.model.AppRole;
 import com.maarcus.spring_security.model.Role;
 import com.maarcus.spring_security.model.User;
@@ -33,7 +34,7 @@ public class SecurityConfig {
         (requests) ->
             requests
                 .requestMatchers("/api/admin/**")
-                .hasAnyRole("ADMIN")
+                .hasRole("ADMIN")
                 .requestMatchers("/contact")
                 .permitAll()
                 .requestMatchers("/hi")
@@ -43,6 +44,7 @@ public class SecurityConfig {
     // http.formLogin(withDefaults());
     http.csrf(AbstractHttpConfigurer::disable);
     http.addFilterBefore(new CustomLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+    http.addFilterAfter(new RequestValidationFilter(), CustomLoggingFilter.class);
     http.sessionManagement(
         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     http.httpBasic(withDefaults());
