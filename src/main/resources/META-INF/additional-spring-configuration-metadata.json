@@ -8,5 +8,10 @@
     "name": "spring.app.jwtExpirationMs",
     "type": "java.lang.String",
     "description": "JWT Expiration in Milliseconds"
+  },
+  {
+    "name": "frontend.url",
+    "type": "java.lang.String",
+    "description": "Frontend URL"
   }
 ]}
