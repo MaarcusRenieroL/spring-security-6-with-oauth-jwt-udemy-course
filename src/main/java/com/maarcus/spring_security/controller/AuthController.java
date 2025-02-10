@@ -1,6 +1,7 @@
 package com.maarcus.spring_security.controller;
 
 import com.maarcus.spring_security.model.AppRole;
+import com.maarcus.spring_security.model.AuditLog;
 import com.maarcus.spring_security.model.Role;
 import com.maarcus.spring_security.model.User;
 import com.maarcus.spring_security.payload.request.LoginRequest;
@@ -9,6 +10,7 @@ import com.maarcus.spring_security.payload.response.LoginResponse;
 import com.maarcus.spring_security.payload.response.MessageResponse;
 import com.maarcus.spring_security.repository.RoleRepository;
 import com.maarcus.spring_security.repository.UserRepository;
+import com.maarcus.spring_security.service.AuditLogService;
 import com.maarcus.spring_security.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,14 +40,31 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-  @Autowired private JwtUtils jwtUtils;
-  @Autowired AuthenticationManager authenticationManager;
-  @Autowired private UserRepository userRepository;
-  @Autowired private RoleRepository roleRepository;
-  @Autowired private PasswordEncoder passwordEncoder;
+  private final JwtUtils jwtUtils;
+  private final AuthenticationManager authenticationManager;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final AuditLogService auditLogService;
+
+  public AuthController(
+      JwtUtils jwtUtils,
+      AuthenticationManager authenticationManager,
+      UserRepository userRepository,
+      RoleRepository roleRepository,
+      PasswordEncoder passwordEncoder,
+      AuditLogService auditLogService) {
+    this.jwtUtils = jwtUtils;
+    this.authenticationManager = authenticationManager;
+    this.userRepository = userRepository;
+    this.roleRepository = roleRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.auditLogService = auditLogService;
+  }
 
   @GetMapping("csrf-token")
   public CsrfToken getCsrfToken(HttpServletRequest request) {
+    auditLogService.createAuditLog(new AuditLog("GET", "Get CSRF Token", null, null, null));
     return (CsrfToken) request.getAttribute(CsrfToken.class.getName());
   }
 
@@ -104,6 +122,8 @@ public class AuthController {
     user.setRole(role);
     userRepository.save(user);
 
+    auditLogService.createAuditLog(
+        new AuditLog("POST", "Create User", user.getUserId(), user.getEmail(), user.getUserName()));
     return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 
@@ -136,6 +156,9 @@ public class AuthController {
             .collect(Collectors.toList());
 
     LoginResponse response = new LoginResponse(jwtToken, userDetails.getUsername(), roles);
+
+    auditLogService.createAuditLog(
+        new AuditLog("POST", "Login", null, null, userDetails.getUsername()));
     return ResponseEntity.ok(response);
   }
 }
