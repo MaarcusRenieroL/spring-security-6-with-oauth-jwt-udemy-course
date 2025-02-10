@@ -10,4 +10,6 @@ public interface UserService {
   List<User> getAllUsers();
 
   Optional<User> getUserById(Long userId);
+
+  void generatePasswordResetToken(String email);
 }

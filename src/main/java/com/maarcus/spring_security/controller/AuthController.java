@@ -11,6 +11,7 @@ import com.maarcus.spring_security.payload.response.MessageResponse;
 import com.maarcus.spring_security.repository.RoleRepository;
 import com.maarcus.spring_security.repository.UserRepository;
 import com.maarcus.spring_security.service.AuditLogService;
+import com.maarcus.spring_security.service.UserService;
 import com.maarcus.spring_security.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,11 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,6 +43,7 @@ public class AuthController {
   private final RoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuditLogService auditLogService;
+  private final UserService userService;
 
   public AuthController(
       JwtUtils jwtUtils,
@@ -53,13 +51,15 @@ public class AuthController {
       UserRepository userRepository,
       RoleRepository roleRepository,
       PasswordEncoder passwordEncoder,
-      AuditLogService auditLogService) {
+      AuditLogService auditLogService,
+      UserService userService) {
     this.jwtUtils = jwtUtils;
     this.authenticationManager = authenticationManager;
     this.userRepository = userRepository;
     this.roleRepository = roleRepository;
     this.passwordEncoder = passwordEncoder;
     this.auditLogService = auditLogService;
+    this.userService = userService;
   }
 
   @GetMapping("csrf-token")
@@ -160,5 +160,16 @@ public class AuthController {
     auditLogService.createAuditLog(
         new AuditLog("POST", "Login", null, null, userDetails.getUsername()));
     return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/public/forgot-password")
+  public ResponseEntity<?> forgotPassword(@RequestParam String email) {
+    try {
+      userService.generatePasswordResetToken(email);
+      return ResponseEntity.ok(new MessageResponse("Password reset email sent!"));
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(new MessageResponse("Error sending password reset email"));
+    }
   }
 }
